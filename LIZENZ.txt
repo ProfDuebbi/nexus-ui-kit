@@ -1,0 +1,87 @@
+Nexus UI Kit · v1.0
+Copyright (C) 2026 Brainstorm Studios · DrDübbi
+Veroeffentlicht am 1. Juli 2026 — brainstorm-studios.de
+
+
+WAS HIER DRIN IST
+
+Ausschliesslich die Design-Ebene: Farben, Typografie, Abstaende, Bausteine
+und Bewegungsregeln. Kein Projektcode, keine Inhalte, keine Daten.
+
+
+KURZ GESAGT
+
+  [ja]   benutzen, aendern, in eigene Projekte einbauen
+  [ja]   weitergeben, auch in geaenderter Form
+  [ja]   Bedingung: den Urheber nennen
+  [nein] nicht kommerziell
+
+
+DIE LIZENZ
+
+Creative Commons Namensnennung - Nicht kommerziell 4.0 International
+(CC BY-NC 4.0).
+
+  Volltext:  LICENSE (englisch, verbindliche Fassung)
+  Kurzform:  https://creativecommons.org/licenses/by-nc/4.0/deed.de
+
+Im Zweifel gilt der Volltext, nicht diese Zusammenfassung.
+
+
+SO NENNST DU MICH
+
+Ein Satz im Impressum, in der LIESMICH, im Abspann oder im Kopf der Datei
+genuegt:
+
+  Nexus UI Kit von Brainstorm-Studios.de (DrDübbi), CC BY-NC 4.0
+  https://brainstorm-studios.de/de/arbeiten/nexus-ui-kit
+
+Wer das Kit veraendert, kennzeichnet die Aenderung als solche — damit eine
+umgebaute Fassung nicht fuer das Original gehalten wird. Der Urhebervermerk
+im Kopf von nexus.css bleibt dabei stehen.
+
+
+WAS "NICHT KOMMERZIELL" MEINT
+
+Nicht kommerziell heisst: nicht in erster Linie auf einen geschaeftlichen
+Vorteil oder eine Geldzahlung gerichtet. Ein eigenes Werkzeug, ein Spiel
+ohne Preisschild, eine Vereinsseite, eine Studienarbeit, ein Prototyp im
+Job — alles in Ordnung. Ein Produkt, das verkauft wird, ein Kundenauftrag,
+eine Seite, die von Werbung lebt, ein Template zum Weiterverkaufen — dafuer
+reicht diese Lizenz nicht.
+
+Fuer den kommerziellen Fall gibt es eine Erlaubnis auf Anfrage, und die ist
+in der Regel ein freundliches Ja:
+
+  https://brainstorm-studios.de/de/kontakt
+
+
+KOPIEN, DIE ANDERS LIZENSIERT SIND
+
+In zwei eigenen Projekten steckt eine Kopie der Gestaltungsebene, und dort
+gilt die Lizenz des jeweiligen Projekts — einschliesslich kommerzieller
+Nutzung:
+
+  CTRL·DECK                       AGPL-3.0-or-later
+  Police Chief Simulator Trainer  MIT
+
+Das ist kein Widerspruch, sondern dieselbe Urheberschaft in zwei Rollen: als
+Urheber darf man sein Werk mehrfach und unterschiedlich lizensieren. Diese
+Lizenz hier gilt fuer das eigenstaendige Kit, wie es unter der Adresse oben
+bezogen wird.
+
+
+SCHRIFTEN
+
+Die benutzten Schriften sind NICHT Teil dieses Pakets:
+
+  Inter           SIL Open Font License 1.1   https://rsms.me/inter/
+  JetBrains Mono  SIL Open Font License 1.1   https://jetbrains.com/lp/mono/
+
+Beide sind frei nutzbar, es gelten ihre eigenen Lizenzen.
+
+
+OHNE GEWAEHR
+
+Die Dateien werden bereitgestellt, wie sie sind. Keine Zusicherung, keine
+Haftung — siehe Abschnitt 5 des Lizenzvolltexts.

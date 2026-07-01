@@ -1,0 +1,5 @@
+# Die Archive entstehen aus den Dateien daneben — `node paket-bauen.mjs`.
+# Sie im Repo zu halten hiesse, bei jeder Aenderung zwei Staende zu
+# pflegen, von denen einer still veralten kann.
+nexus-ui-kit.zip
+nexus-ui-kit.tar.gz

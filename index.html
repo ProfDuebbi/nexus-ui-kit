@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus UI Kit</title>
+<meta name="description" content="Dunkles Interface-System: Tokens, Shell, Bausteine und Bewegungs-Handschrift.">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%234f7dff"/><stop offset="0.5" stop-color="%238b5cf6"/><stop offset="1" stop-color="%23ff2e88"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="%230e0f13"/><path d="M9 23V9l14 14V9" fill="none" stroke="url(%23g)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nexus.css">
+<style>
+  /* Nur fuer diese Schauseite — nicht Teil des Systems. */
+  html, body { margin: 0; }
+  .sg-sec { scroll-margin-top: 20px; }
+  .sg-reihe { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .sg-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .sg-swatch { display: flex; flex-direction: column; gap: 8px; }
+  .sg-swatch i {
+    display: block; height: 56px; border-radius: 12px;
+    border: 1px solid var(--line2);
+  }
+  .sg-swatch b { font-size: .78rem; font-weight: 700; }
+  .sg-swatch small { font-family: var(--mono); font-size: .7rem; color: var(--faint); }
+  .sg-farbwahl {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 4px 4px 12px; border-radius: 999px;
+    border: 1px solid var(--line2); background: var(--surface);
+    font-size: .78rem; font-weight: 600; color: var(--muted);
+  }
+  .sg-farbwahl input[type=color] {
+    width: 30px; height: 30px; padding: 0; border: none; border-radius: 999px;
+    background: none; cursor: pointer;
+  }
+  .sg-farbwahl input[type=color]::-webkit-color-swatch { border: 1px solid var(--line2); border-radius: 999px; }
+  .sg-farbwahl input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+  .sg-code {
+    margin: 0; padding: 12px 14px; overflow-x: auto;
+    border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--muted);
+    font-family: var(--mono); font-size: .76rem; line-height: 1.7;
+  }
+  .sg-code b { color: var(--text); font-weight: 600; }
+  /* Verweise im Fliesstext des Lizenz-Abschnitts: der Browser faerbt sie
+     sonst blau, und Blau gehoert hier keiner Bedeutung. */
+  #lizenz p a { color: var(--akzent); text-underline-offset: 3px; }
+  .sg-code i { color: var(--faint); font-style: normal; }
+  .sg-paar { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; align-items: start; }
+  @media (max-width: 980px) { .sg-rail-hint { display: none; } }
+  @media (max-width: 820px) {
+    .nx-top { grid-template-columns: minmax(0, 1fr) auto; }
+    .nx-top .nx-searchbtn, #zurueck { display: none; }
+    .nx-brand-text small { display: none; }
+  }
+</style>
+</head>
+<body class="nx nx-app">
+  <div class="nx-glow"></div>
+
+  <!-- Kopfzeile -->
+  <header class="nx-top">
+    <div class="nx-top-left">
+      <a class="nx-brand" href="#">
+        <span class="nx-brand-text">NEXUS <em>UI KIT</em> <small>v1.0</small></span>
+      </a>
+    </div>
+    <button class="nx-searchbtn" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      Suchen <span class="nx-kbd">⌘K</span>
+    </button>
+    <div class="nx-top-right">
+      <label class="sg-farbwahl" data-tip="Faerbt das ganze System um" data-tip-pos="links">
+        Akzent
+        <input type="color" id="farbe" value="#8b5cf6">
+      </label>
+      <button class="nx-btn nx-btn-sm nx-btn-plain" id="zurueck" type="button">Zurücksetzen</button>
+      <a class="nx-btn nx-btn-sm nx-btn-primary" href="nexus-ui-kit.zip" download>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16"/></svg>
+        Paket laden
+      </a>
+    </div>
+  </header>
+
+  <div class="nx-body">
+    <!-- Seitenleiste -->
+    <nav class="nx-rail">
+      <div class="nx-rail-sec">Bausteine</div>
+      <a class="nx-rail-item nx-rail-on" href="#tokens"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="14" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="15.5" r="2.5"/><path d="M12 22a10 10 0 1 1 0-20"/></svg><span>Farben &amp; Tokens</span></a>
+      <a class="nx-rail-item" href="#typo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg><span>Typografie</span></a>
+      <a class="nx-rail-item" href="#knoepfe"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="5"/><circle cx="8" cy="12" r="2"/></svg><span>Knöpfe</span></a>
+      <a class="nx-rail-item" href="#kennzahlen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg><span>Kennzahlen</span><span class="nx-badge">4</span></a>
+      <a class="nx-rail-item" href="#kacheln"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Kacheln</span></a>
+      <a class="nx-rail-item" href="#tabellen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg><span>Tabellen</span></a>
+      <a class="nx-rail-item" href="#formulare"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 14h6"/></svg><span>Formulare</span></a>
+      <a class="nx-rail-item" href="#kleinteile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Kleinteile</span></a>
+      <div class="nx-rail-sep"></div>
+      <div class="nx-rail-sec">Haltung</div>
+      <a class="nx-rail-item" href="#bewegung"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18c6 0 6-12 12-12 3 0 6 2 6 6"/></svg><span>Bewegung</span></a>
+      <a class="nx-rail-item" href="#einbau"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 18-6-6 6-6M16 6l6 6-6 6"/></svg><span>Einbau</span></a>
+      <a class="nx-rail-item" href="#paket"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v8l-9 5-9-5V8l9-5 9 5Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg><span>Das Paket</span></a>
+      <a class="nx-rail-item" href="#lizenz"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 4 3.5 7.5 8 9 4.5-1.5 8-5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><span>Lizenz</span></a>
+      <div class="nx-rail-spacer"></div>
+      <div class="nx-rail-tip sg-rail-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+        <span>Die Farbe oben rechts ändern — alles zieht mit.</span>
+      </div>
+      <div class="nx-rail-foot">Nexus UI Kit · Brainstorm Studios · CC BY-NC 4.0</div>
+    </nav>
+
+    <!-- Inhalt -->
+    <main class="nx-content">
+      <div class="nx-wrap">
+
+        <div class="nx-head">
+          <div class="nx-head-text">
+            <span class="nx-kicker"><i></i>Design-System</span>
+            <h1 class="nx-h1 nx-h1-sm">Ein dunkler Grund, <em>eine Farbe</em>, dieselbe Handschrift.</h1>
+            <p class="nx-lead">Ruhige Flächen, gestapelt statt gerahmt. Der Akzent kommt sparsam und trägt den Verlauf. Alles bewegt sich mit derselben Kurve — 160 bis 250 Millisekunden, easeOutQuart.</p>
+          </div>
+        </div>
+
+        <!-- Tokens -->
+        <section class="nx-panel sg-sec" id="tokens">
+          <div class="nx-panel-head">
+            <h2>Farben &amp; Tokens</h2>
+            <span class="nx-chip">CSS-Variablen</span>
+          </div>
+          <p class="nx-panel-sub">Flächen sind gestapelt: je wichtiger, desto heller. Kanten gibt es in zwei Stärken — eine ruhige und eine betonte.</p>
+          <div class="sg-raster" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+            <div class="sg-swatch"><i style="background:var(--bg)"></i><b>--bg</b><small>#0e0f13 · Seitengrund</small></div>
+            <div class="sg-swatch"><i style="background:var(--surface)"></i><b>--surface</b><small>#15171c · Karte</small></div>
+            <div class="sg-swatch"><i style="background:var(--elev)"></i><b>--elev</b><small>#1b1e25 · Hover</small></div>
+            <div class="sg-swatch"><i style="background:var(--elev2)"></i><b>--elev2</b><small>#21242c · aktiv</small></div>
+            <div class="sg-swatch"><i style="background:var(--line)"></i><b>--line</b><small>#262a33 · Kante</small></div>
+            <div class="sg-swatch"><i style="background:var(--line2)"></i><b>--line2</b><small>#343945 · betont</small></div>
+          </div>
+          <div class="sg-raster">
+            <div class="sg-swatch"><i style="background:var(--akzent)"></i><b>--akzent</b><small>Hauptfarbe</small></div>
+            <div class="sg-swatch"><i style="background:var(--akzent-3)"></i><b>--akzent-3</b><small>kühler Pol</small></div>
+            <div class="sg-swatch"><i style="background:var(--akzent-2)"></i><b>--akzent-2</b><small>warmer Pol</small></div>
+            <div class="sg-swatch"><i style="background:var(--grad)"></i><b>--grad</b><small>Marken-Verlauf</small></div>
+          </div>
+          <p class="nx-panel-sub">Bedeutungsfarben färben bewusst <b>nicht</b> mit dem Akzent mit — sonst wird „Fehler“ zur Geschmacksfrage.</p>
+          <div class="sg-raster">
+            <div class="sg-swatch"><i style="background:var(--ok)"></i><b>--ok</b><small>#3dd68c</small></div>
+            <div class="sg-swatch"><i style="background:var(--warn)"></i><b>--warn</b><small>#ffd166</small></div>
+            <div class="sg-swatch"><i style="background:var(--danger)"></i><b>--danger</b><small>#f0555f</small></div>
+            <div class="sg-swatch"><i style="background:var(--info)"></i><b>--info</b><small>#4f7dff</small></div>
+          </div>
+        </section>
+
+        <!-- Typo -->
+        <section class="nx-panel sg-sec" id="typo">
+          <div class="nx-panel-head"><h2>Typografie</h2><span class="nx-chip">Inter + JetBrains Mono</span></div>
+          <p class="nx-panel-sub">Inter trägt den Text. Die Mono steht nur dort, wo etwas technisch wirken soll: Kicker, Zahlen, Tasten.</p>
+          <span class="nx-kicker"><i></i>Kicker · mono, gesperrt, Akzentfarbe</span>
+          <h1 class="nx-h1">Überschrift mit <em>Verlaufswort</em></h1>
+          <p class="nx-lead">Der Vorspann bleibt bei maximal 58 Zeichen Breite und in --muted. Lange Zeilen ermüden, deshalb bricht der Text früh um.</p>
+          <div class="sg-reihe">
+            <span class="nx-count">12</span>
+            <span class="nx-kbd">⌘</span><span class="nx-kbd">K</span>
+            <span class="nx-mono">SYS-2026-0914</span>
+          </div>
+        </section>
+
+        <!-- Knoepfe -->
+        <section class="nx-panel sg-sec" id="knoepfe">
+          <div class="nx-panel-head"><h2>Knöpfe</h2><span class="nx-chip">Hover hebt an</span></div>
+          <p class="nx-panel-sub">Jeder Knopf hebt sich beim Überfahren um einen Pixel, der Rand nimmt die Akzentfarbe auf, darunter liegt weiches Licht.</p>
+          <div class="sg-reihe">
+            <button class="nx-btn nx-btn-primary">Primär</button>
+            <button class="nx-btn nx-btn-accent">Akzent</button>
+            <button class="nx-btn">Standard</button>
+            <button class="nx-btn nx-btn-plain">Schlicht</button>
+            <button class="nx-btn nx-btn-danger">Löschen</button>
+            <button class="nx-btn nx-btn-icon" data-tip="Nur ein Symbol"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+            <button class="nx-btn" disabled>Gesperrt</button>
+          </div>
+          <div class="sg-reihe">
+            <button class="nx-btn nx-btn-sm">Klein</button>
+            <button class="nx-btn nx-btn-lg nx-btn-primary">Groß</button>
+            <button class="nx-btn nx-btn-discord">Mit Marke anmelden</button>
+          </div>
+        </section>
+
+        <!-- Kennzahlen -->
+        <section class="sg-sec" id="kennzahlen">
+          <div class="nx-sechead"><h2>Kennzahlen</h2></div>
+          <div class="nx-kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+            <div class="nx-kpi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg><b>1.284</b><span>Aufrufe heute</span></div>
+            <div class="nx-kpi" style="--tint:var(--ok)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg><b>98,6 %</b><span>Erreichbarkeit</span></div>
+            <div class="nx-kpi" style="--tint:var(--warn)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>07</b><span>In Arbeit</span></div>
+            <div class="nx-kpi" style="--tint:var(--akzent-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><b>42</b><span>Mitglieder</span></div>
+          </div>
+        </section>
+
+        <!-- Kacheln -->
+        <section class="sg-sec" id="kacheln">
+          <div class="nx-sechead"><h2>Kacheln</h2></div>
+          <p class="nx-panel-sub" style="margin-bottom:12px">Die Farbe einer Kachel kommt aus zwei Farbwinkeln (<span class="nx-mono">--h</span> / <span class="nx-mono">--h2</span>) — Sättigung und Helligkeit sind fest, damit die Wand als ein Satz wirkt.</p>
+          <div class="nx-tile-grid">
+            <a class="nx-tile" href="#" style="--h:265;--h2:225">
+              <svg class="nx-tile-wash" width="86" height="86" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+              <span class="nx-tile-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></span>
+              <span class="nx-tile-txt"><b>Übersicht</b><small>Alles auf einen Blick, nichts versteckt.</small></span>
+              <svg class="nx-tile-go" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+            </a>
+            <a class="nx-tile" href="#" style="--h:160;--h2:190">
+              <svg class="nx-tile-wash" width="86" height="86" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+              <span class="nx-tile-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span>
+              <span class="nx-tile-txt"><b>Zugänge</b><small>Wer darf was — und seit wann.</small></span>
+              <svg class="nx-tile-go" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+            </a>
+            <a class="nx-tile" href="#" style="--h:22;--h2:342">
+              <svg class="nx-tile-wash" width="86" height="86" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20h16M6 16V9M12 16V5M18 16v-4"/></svg>
+              <span class="nx-tile-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M6 16V9M12 16V5M18 16v-4"/></svg></span>
+              <span class="nx-tile-txt"><b>Auswertung</b><small>Zahlen über den letzten Monat.</small></span>
+              <svg class="nx-tile-go" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Tabellen + Status -->
+        <section class="nx-panel nx-panel-tight sg-sec" id="tabellen">
+          <div class="nx-panel-head"><h2>Tabelle &amp; Status</h2><span class="nx-chip">bricht mobil zu Karten um</span></div>
+          <div class="nx-tablewrap">
+            <table class="nx-table nx-table-cards">
+              <thead><tr><th>Vorgang</th><th>Zuständig</th><th>Stand</th><th class="num">Dauer</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Vorgang"><a href="#">Zugang einrichten</a></td><td data-label="Zuständig"><span class="nx-people"><span class="nx-avatar nx-avatar-fb">AM</span><span>A. Meier</span></span></td><td data-label="Stand"><span class="nx-badge-st nx-st-ok">Erledigt</span></td><td class="num" data-label="Dauer">4 min</td></tr>
+                <tr><td data-label="Vorgang"><a href="#">Rechte prüfen</a></td><td data-label="Zuständig"><span class="nx-people"><span class="nx-avatar nx-avatar-fb">KS</span><span>K. Schulz</span></span></td><td data-label="Stand"><span class="nx-badge-st nx-st-arbeit">In Arbeit</span></td><td class="num" data-label="Dauer">22 min</td></tr>
+                <tr><td data-label="Vorgang"><a href="#">Rückmeldung offen</a></td><td data-label="Zuständig"><span class="nx-people"><span class="nx-avatar nx-avatar-fb">TW</span><span>T. Wolf</span></span></td><td data-label="Stand"><span class="nx-badge-st nx-st-warten">Wartet</span></td><td class="num" data-label="Dauer">2 Tage</td></tr>
+                <tr><td data-label="Vorgang"><a href="#">Import fehlgeschlagen</a></td><td data-label="Zuständig"><span class="nx-people"><span class="nx-avatar nx-avatar-fb">—</span><span>niemand</span></span></td><td data-label="Stand"><span class="nx-badge-st nx-st-weg">Abgebrochen</span></td><td class="num" data-label="Dauer">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Formulare + Dialog -->
+        <section class="sg-sec" id="formulare">
+          <div class="sg-paar">
+            <div class="nx-panel">
+              <div class="nx-panel-head"><h2>Formular</h2></div>
+              <div class="nx-form-row">
+                <div class="nx-field"><label for="f-bez">Bezeichnung</label><input class="nx-input" id="f-bez" placeholder="Kurz und eindeutig"></div>
+                <div class="nx-field"><label for="f-ber">Bereich</label>
+                  <select class="nx-select" id="f-ber"><option>Allgemein</option><option>Technik</option><option>Gestaltung</option></select>
+                </div>
+              </div>
+              <div class="nx-field"><label for="f-notiz">Notiz</label><textarea class="nx-textarea" id="f-notiz" placeholder="Was soll passieren?"></textarea><small>Sichtbar für alle im Bereich.</small></div>
+              <div class="nx-form-acts">
+                <button class="nx-btn nx-btn-primary" id="dialog-auf">Speichern</button>
+                <button class="nx-btn nx-btn-plain">Abbrechen</button>
+              </div>
+            </div>
+            <div class="nx-panel">
+              <div class="nx-panel-head"><h2>Hinweise</h2></div>
+              <div class="nx-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><span>Ein ruhiger Hinweis im Panel.</span></div>
+              <div class="nx-note nx-note-bad"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span>Und einer, der wehtut.</span></div>
+              <div class="nx-empty">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 12h8"/></svg>
+                <p>Noch nichts da. Leere Zustände erklären, statt nur leer zu sein.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Kleinteile -->
+        <section class="nx-panel sg-sec" id="kleinteile">
+          <div class="nx-panel-head"><h2>Kleinteile</h2></div>
+          <div class="sg-reihe">
+            <span class="nx-chip">Chip</span>
+            <span class="nx-badge">9</span>
+            <span class="nx-badge-st nx-st-offen">Offen</span>
+            <span class="nx-dot nx-dot-on"></span>
+            <span class="nx-avatar nx-avatar-fb">DU</span>
+            <button class="nx-btn nx-btn-sm" data-tip="Ein eigener Kurzhinweis — ohne die Verzögerung des Browsers">Mit Hinweis</button>
+            <span class="nx-spinner"></span>
+          </div>
+          <div class="nx-tabsbar">
+            <button class="nx-tab nx-tab-on">Alle</button>
+            <button class="nx-tab">Offen</button>
+            <button class="nx-tab">Erledigt</button>
+          </div>
+          <div class="nx-skelett">
+            <div class="nx-sk-kopf"></div>
+            <div class="nx-sk-reihe"><span></span><span></span><span></span><span></span></div>
+            <div class="nx-sk-reihe is-text"><span></span><span></span></div>
+            <div class="nx-sk-reihe is-text"><span></span><span></span></div>
+          </div>
+        </section>
+
+        <!-- Bewegung -->
+        <section class="nx-panel sg-sec" id="bewegung">
+          <div class="nx-panel-head"><h2>Bewegung</h2><span class="nx-chip">eine Kurve für alles</span></div>
+          <p class="nx-panel-sub">Nichts springt. Kanten fahren ein, Flächen kommen als weicher Verlauf, Symbole machen eine winzige Bewegung mit. Immer <span class="nx-mono">cubic-bezier(.22, 1, .36, 1)</span>.</p>
+          <pre class="sg-code"><b>--ease</b>: cubic-bezier(0.22, 1, 0.36, 1);   <i>/* easeOutQuart */</i>
+
+<i>Hover</i>        160 ms
+<i>Zustand</i>      200–250 ms
+<i>Einblenden</i>   280–500 ms
+<i>Liste</i>        35 ms Versatz pro Zeile (.nx-rise, --i)</pre>
+          <div class="sg-reihe">
+            <div class="nx-kpi nx-rise" style="--i:0;min-width:120px"><b>01</b><span>zuerst</span></div>
+            <div class="nx-kpi nx-rise" style="--i:1;min-width:120px"><b>02</b><span>dann</span></div>
+            <div class="nx-kpi nx-rise" style="--i:2;min-width:120px"><b>03</b><span>zuletzt</span></div>
+          </div>
+        </section>
+
+        <!-- Einbau -->
+        <section class="nx-panel sg-sec" id="einbau">
+          <div class="nx-panel-head"><h2>Einbau</h2><span class="nx-chip">drei Zeilen</span></div>
+          <pre class="sg-code">&lt;link rel="stylesheet" href="<b>nexus.css</b>"&gt;
+&lt;script src="<b>nexus-accent.js</b>"&gt;&lt;/script&gt;
+
+&lt;body class="<b>nx nx-app</b>"&gt;
+  &lt;div class="nx-glow"&gt;&lt;/div&gt;
+  &lt;header class="nx-top"&gt;…&lt;/header&gt;
+  &lt;div class="nx-body"&gt;
+    &lt;nav class="nx-rail"&gt;…&lt;/nav&gt;
+    &lt;main class="nx-content"&gt;&lt;div class="nx-wrap"&gt;…&lt;/div&gt;&lt;/main&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+
+<i>// Eigene Farbe — der Rest zieht mit:</i>
+<b>nexusAkzent</b>("#22d3ee");</pre>
+          <p class="nx-panel-sub">Ohne <span class="nx-mono">.nx-app</span> wird daraus eine normal scrollende Seite statt einer festen App-Fläche.</p>
+        </section>
+
+        <!-- Paket -->
+        <section class="nx-panel sg-sec" id="paket">
+          <div class="nx-panel-head">
+            <h2>Das Paket</h2>
+            <span class="nx-chip">37 KB gepackt</span>
+          </div>
+          <p class="nx-panel-sub">Alles auf dieser Seite steckt in neun Dateien — kein Build, keine Abhängigkeiten, keine Daten.</p>
+          <div class="nx-tablewrap">
+            <table class="nx-table nx-table-cards">
+              <thead><tr><th>Datei</th><th>Wofür</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Datei"><a href="nexus.css" class="nx-mono">nexus.css</a></td><td data-label="Wofür">Das System. Tokens, Shell, alle Bausteine.</td></tr>
+                <tr><td data-label="Datei"><a href="nexus-tokens.css" class="nx-mono">nexus-tokens.css</a></td><td data-label="Wofür">Nur die Variablen, für eigene Bausteine.</td></tr>
+                <tr><td data-label="Datei"><a href="nexus-accent.js" class="nx-mono">nexus-accent.js</a></td><td data-label="Wofür">Die Akzent-Engine: eine Farbe → das ganze Set.</td></tr>
+                <tr><td data-label="Datei"><a href="tokens.json" class="nx-mono">tokens.json</a></td><td data-label="Wofür">Dieselben Werte maschinenlesbar.</td></tr>
+                <tr><td data-label="Datei"><a href="tailwind-preset.js" class="nx-mono">tailwind-preset.js</a></td><td data-label="Wofür">Tokens als Tailwind-Theme.</td></tr>
+                <tr><td data-label="Datei"><a href="README.md" class="nx-mono">README.md</a></td><td data-label="Wofür">Einbau, Bausteine, die Regeln dahinter.</td></tr>
+                <tr><td data-label="Datei"><a href="LIZENZ.txt" class="nx-mono">LIZENZ.txt</a></td><td data-label="Wofür">Die Bedingungen auf deutsch, mit Erklärung.</td></tr>
+                <tr><td data-label="Datei"><a href="LICENSE" class="nx-mono">LICENSE</a></td><td data-label="Wofür">CC BY-NC 4.0 im Volltext — die verbindliche Fassung.</td></tr>
+                <tr><td data-label="Datei"><span class="nx-mono">index.html</span></td><td data-label="Wofür">Diese Schauseite.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="nx-form-acts">
+            <a class="nx-btn nx-btn-lg nx-btn-primary" href="nexus-ui-kit.zip" download>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16"/></svg>
+              nexus-ui-kit.zip
+            </a>
+            <a class="nx-btn nx-btn-lg" href="nexus-ui-kit.tar.gz" download>tar.gz</a>
+          </div>
+        </section>
+
+        <!-- Lizenz -->
+        <section class="nx-panel sg-sec" id="lizenz">
+          <div class="nx-panel-head">
+            <h2>Lizenz</h2>
+            <span class="nx-chip">CC BY-NC 4.0</span>
+          </div>
+          <p class="nx-panel-sub">Nimm es, bau es um, gib es weiter. Zwei Bedingungen, keine dritte.</p>
+          <div class="sg-reihe">
+            <div class="nx-kpi nx-rise" style="--i:0;--tint:var(--ok)"><b>Ja</b><span>benutzen, ändern, weitergeben</span></div>
+            <div class="nx-kpi nx-rise" style="--i:1;--tint:var(--info)"><b>Nennen</b><span>ein Satz genügt</span></div>
+            <div class="nx-kpi nx-rise" style="--i:2;--tint:var(--warn)"><b>Nicht kommerziell</b><span>verkaufen nur auf Anfrage</span></div>
+          </div>
+          <pre class="sg-code">Nexus UI Kit von <b>Brainstorm-Studios.de</b> (DrDübbi), CC BY-NC 4.0
+https://brainstorm-studios.de/de/arbeiten/nexus-ui-kit</pre>
+          <p class="nx-panel-sub">
+            Wer eine geänderte Fassung weitergibt, kennzeichnet sie als geändert — damit
+            sie nicht für das Original gehalten wird. Kommerziell geht auch, dafür braucht
+            es eine kurze Nachricht: die Antwort ist meistens ja.
+            Ausführlich in <a href="LIZENZ.txt" class="nx-mono">LIZENZ.txt</a>,
+            verbindlich in <a href="LICENSE" class="nx-mono">LICENSE</a>.
+          </p>
+          <div class="nx-form-acts">
+            <a class="nx-btn nx-btn-accent" href="https://brainstorm-studios.de/de/kontakt">Kommerziell nutzen — fragen</a>
+            <a class="nx-btn nx-btn-plain" href="https://creativecommons.org/licenses/by-nc/4.0/deed.de">CC BY-NC 4.0 bei Creative Commons</a>
+          </div>
+        </section>
+
+      </div>
+    </main>
+    <!-- Mobil: die Leiste wird zur Tab-Leiste unten -->
+    <nav class="nx-mtabs">
+      <a href="#tokens" class="nx-mtab-on"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="14" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="15.5" r="2.5"/><path d="M12 22a10 10 0 1 1 0-20"/></svg>Farben</a>
+      <a href="#knoepfe"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="5"/><circle cx="8" cy="12" r="2"/></svg>Knöpfe</a>
+      <a href="#kacheln"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Kacheln</a>
+      <a href="#einbau"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 18-6-6 6-6M16 6l6 6-6 6"/></svg>Einbau</a>
+    </nav>
+  </div>
+
+  <!-- Dialog -->
+  <div class="nx-modal-veil" id="dialog" hidden>
+    <div class="nx-modal" role="dialog" aria-modal="true" aria-labelledby="dlg-titel">
+      <div class="nx-modal-head">
+        <h2 id="dlg-titel">Wirklich speichern?</h2>
+        <button class="nx-btn nx-btn-icon nx-btn-plain" id="dialog-zu" aria-label="Schließen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="nx-modal-body">
+        <p class="nx-lead">Dialoge sind bewusst ohne Weichzeichner im Hintergrund — der wurde beim Scrollen ständig neu gerechnet. Ein dunklerer Grund tut dasselbe, ohne zu ruckeln.</p>
+      </div>
+      <div class="nx-modal-foot">
+        <button class="nx-btn nx-btn-plain" id="dialog-zu2">Abbrechen</button>
+        <button class="nx-btn nx-btn-primary" id="dialog-ok">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="nx-toast" id="toast" hidden>
+    <span class="nx-toast-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 13 4 4L19 7"/></svg></span>
+    <span class="nx-toast-txt">Gespeichert.</span>
+  </div>
+
+<script src="nexus-accent.js"></script>
+<script>
+  // Farbwaehler
+  var farbe = document.getElementById('farbe');
+  farbe.addEventListener('input', function () { nexusAkzent(farbe.value); });
+  document.getElementById('zurueck').addEventListener('click', function () {
+    nexusAkzent(null); farbe.value = '#8b5cf6';
+  });
+
+  // Aktiver Punkt in der Leiste folgt dem Scrollen
+  var punkte = [].slice.call(document.querySelectorAll('.nx-rail-item'));
+  var ziele = punkte.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  var beob = new IntersectionObserver(function (eintraege) {
+    eintraege.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var i = ziele.indexOf(e.target);
+      punkte.forEach(function (p, j) { p.classList.toggle('nx-rail-on', i === j); });
+    });
+  }, { rootMargin: '-10% 0px -70% 0px' });
+  ziele.forEach(function (z) { if (z) beob.observe(z); });
+
+  // Dialog + Toast
+  var dlg = document.getElementById('dialog'), toast = document.getElementById('toast'), uhr;
+  function auf() { dlg.hidden = false; }
+  function zu() { dlg.hidden = true; }
+  document.getElementById('dialog-auf').addEventListener('click', auf);
+  document.getElementById('dialog-zu').addEventListener('click', zu);
+  document.getElementById('dialog-zu2').addEventListener('click', zu);
+  document.getElementById('dialog-ok').addEventListener('click', function () {
+    zu(); toast.hidden = false; clearTimeout(uhr);
+    uhr = setTimeout(function () { toast.hidden = true; }, 2600);
+  });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) zu(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') zu(); });
+</script>
+</body>
+</html>

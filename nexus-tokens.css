@@ -1,0 +1,46 @@
+/* ============================================================
+   NEXUS UI KIT — nur die Tokens.
+   Fuer Projekte, die das System nicht komplett uebernehmen, aber
+   dieselben Farben, Kurven und Schriften sprechen wollen.
+   Hier auf :root, damit sie ueberall gelten.
+
+   Copyright (C) 2026 Brainstorm Studios - DrDuebbi. CC BY-NC 4.0 - Nennung
+   Pflicht, nicht kommerziell. Siehe LIZENZ.txt.
+   ============================================================ */
+:root {
+  --bg: #0e0f13;
+  --surface: #15171c;
+  --elev: #1b1e25;
+  --elev2: #21242c;
+  --line: #262a33;
+  --line2: #343945;
+
+  --text: #e7e8eb;
+  --muted: #aab1bd;
+  --faint: #828a99;
+
+  --akzent: var(--nx-accent, #8b5cf6);
+  --akzent-2: var(--nx-accent-2, #ff2e88);
+  --akzent-3: var(--nx-accent-3, #4f7dff);
+  --grad: var(--nx-grad, linear-gradient(105deg, var(--akzent-3) 0%, var(--akzent) 50%, var(--akzent-2) 100%));
+
+  --ok: #3dd68c;
+  --warn: #ffd166;
+  --danger: #f0555f;
+  --info: #4f7dff;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --nx-font-sans: var(--nx-font, "Inter"), system-ui, -apple-system, sans-serif;
+  --nx-font-mono: var(--nx-mono, "JetBrains Mono"), ui-monospace, SFMono-Regular, monospace;
+  --mono: var(--nx-font-mono);
+
+  /* Radien und Schatten, wie sie im System vorkommen */
+  --r-sm: 9px;
+  --r: 11px;
+  --r-md: 14px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --schatten-karte: 0 18px 40px -22px rgba(0, 0, 0, 0.9);
+  --schatten-dialog: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
