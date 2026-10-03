@@ -1,4 +1,4 @@
-Nexus UI Kit · v1.0
+Nexus UI Kit · v1.0.1
 Copyright (C) 2026 Brainstorm Studios · DrDübbi
 Veroeffentlicht am 1. Juli 2026 — brainstorm-studios.de
 

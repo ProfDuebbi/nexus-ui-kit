@@ -1,5 +1,5 @@
 /* ============================================================
-   NEXUS UI KIT · v1.0
+   NEXUS UI KIT · v1.0.1
    Dunkles Interface-System: ruhige Flaechen, eine Akzentfarbe,
    ein Marken-Verlauf, ueberall dieselbe Bewegungs-Handschrift
    (160–250 ms, easeOutQuart).
@@ -23,7 +23,7 @@
   10. Tabellen        .nx-table
   11. Status          .nx-badge-st
   12. Formulare       .nx-field, .nx-input, .nx-textarea, .nx-select
-  13. Dialoge         .nx-modal
+  13. Dialoge         .nx-modal-veil > .nx-modal
   14. Kleinteile      Avatare, Chips, Zaehler, Skelette, Toasts
   15. Hover-Handschrift + Kurzhinweise (data-tip)
 
@@ -869,18 +869,10 @@
 .nx-thumb-tag svg { display: inline; margin-right: 4px; vertical-align: -1px; color: #c4b5fd; }
 .nx-seg-text button { width: auto; padding: 0 9px; font-size: 0.72rem; font-weight: 700; }
 .nx-select-sm { height: 30px; max-width: 170px; padding: 0 28px 0 9px; border-radius: 9px; font-size: 0.78rem; background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; }
-.nx-modal { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; background: rgba(6, 7, 10, 0.72); backdrop-filter: blur(8px); animation: nx-fade 0.2s var(--ease); }
-.nx-modal-box {
-  position: relative; width: min(540px, 100%); max-height: min(780px, calc(100dvh - 32px)); overflow-y: auto;
-  display: flex; flex-direction: column; gap: 16px; padding: 22px; border-radius: 20px; border: 1px solid var(--line2);
-  background: var(--surface); box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.9); animation: nx-pop 0.3s var(--ease);
-}
-.nx-modal-box::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; background: var(--grad); }
-.nx-modal-head { display: flex; align-items: flex-start; gap: 12px; }
-.nx-modal-head > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-.nx-modal-head h2 { margin: 0; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
-.nx-modal-head p { margin: 0; font-size: 0.84rem; line-height: 1.5; color: var(--muted); }
-.nx-modal-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+/* Hier stand bis 10/2026 eine aeltere Dialogform: `.nx-modal` war die
+   Vollflaeche und `.nx-modal-box` der Kasten darin. Beides ist durch
+   `.nx-modal-veil` > `.nx-modal` ersetzt (Abschnitt 13) und wurde
+   entfernt — es hat in die neue Form hineingewirkt und sie verbogen. */
 .nx-field-label { display: flex; justify-content: space-between; gap: 8px; margin: 0 0 7px; font-size: 0.78rem; font-weight: 700; color: var(--muted); }
 .nx-field-label small { font-weight: 500; color: var(--faint); }
 .nx-textarea {
@@ -1223,6 +1215,7 @@
   border-bottom: 1px solid var(--line);
 }
 .nx-modal-head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.nx-modal-head p { margin: 0; font-size: 0.84rem; line-height: 1.5; color: var(--muted); }
 .nx-modal-body {
   flex: 1;
   min-height: 0;
@@ -1239,6 +1232,7 @@
 }
 .nx-modal-foot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;

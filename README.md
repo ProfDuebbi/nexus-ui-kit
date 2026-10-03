@@ -1,4 +1,4 @@
-# Nexus UI Kit · v1.0
+# Nexus UI Kit · v1.0.1
 
 **CC BY-NC 4.0** — benutzen, ändern und weitergeben erlaubt · Nennung Pflicht · nicht kommerziell.
 Ausführlich in [`LIZENZ.txt`](LIZENZ.txt), verbindlich in [`LICENSE`](LICENSE).
@@ -165,6 +165,24 @@ oder eigene Farbe über `style="--st: var(--info)"`.
 
 ---
 
+## Änderungen
+
+**v1.0.1 — 3. Oktober 2026**
+
+Eine ältere Dialogform lag noch neben der aktuellen: `.nx-modal` war zweimal
+definiert (früher die Vollfläche mit `.nx-modal-box` darin, heute der Kasten
+innerhalb von `.nx-modal-veil`). Die alte Fassung wirkte in die neue hinein —
+Kopf, Rumpf und Fuß eines Dialogs schrumpften auf Inhaltsbreite, die
+Trennlinien reichten nicht bis an den Rand, und auf dem Kasten lag ein
+Weichzeichner, den es ausdrücklich nicht geben soll.
+
+Die alte Form ist entfernt. **`.nx-modal-box` gibt es nicht mehr** — wer sie
+benutzt hat, stellt auf `.nx-modal-veil` > `.nx-modal` um (siehe „Die
+Bausteine"). Sonst ändert sich nichts: keine Tokens, keine Klassennamen,
+keine Farben.
+
+---
+
 ## Lizenz
 
 **CC BY-NC 4.0** — benutzen, ändern und weitergeben ist erlaubt, auch in eigenen
@@ -187,4 +205,4 @@ Projekts. Das eigenständige Kit hier ist davon unabhängig.
 
 ---
 
-Veröffentlicht am **1. Juli 2026** · v1.0 · Copyright © 2026 Brainstorm Studios · DrDübbi
+Veröffentlicht am **1. Juli 2026** · v1.0.1 (3. Oktober 2026) · Copyright © 2026 Brainstorm Studios · DrDübbi
