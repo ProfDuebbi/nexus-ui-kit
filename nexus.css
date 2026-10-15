@@ -1,5 +1,5 @@
 /* ============================================================
-   NEXUS UI KIT · v1.0.1
+   NEXUS UI KIT · v1.1.0
    Dunkles Interface-System: ruhige Flaechen, eine Akzentfarbe,
    ein Marken-Verlauf, ueberall dieselbe Bewegungs-Handschrift
    (160–250 ms, easeOutQuart).
@@ -26,6 +26,7 @@
   13. Dialoge         .nx-modal-veil > .nx-modal
   14. Kleinteile      Avatare, Chips, Zaehler, Skelette, Toasts
   15. Hover-Handschrift + Kurzhinweise (data-tip)
+  16. Bewegung im Scrollen  data-nx-auf, -drift (nexus-motion.js)
 
    BENUTZUNG
    <body class="nx">  … alles darin erbt Farben und Schrift.
@@ -2025,3 +2026,74 @@ button:hover > .nx-chip { color: var(--text); border-color: var(--line2); }
 /* In scrollenden Leisten wuerde die Karte abgeschnitten — dort nichts zeigen. */
 .nx-rail [data-tip]::after,
 .nx-rail [data-tip]::before { display: none; }
+
+/* ── 16. Bewegung im Scrollen ───────────────────────────────
+   Gehoert zu nexus-motion.js. Ohne diese Datei passiert hier
+   nichts: die Anfangszustaende haengen an .nx-bewegt, und die
+   Klasse setzt allein das Skript. Wer nur nexus.css einbindet,
+   bekommt eine ganz normale, sofort sichtbare Seite.
+
+   Zwei Wege fuehren zum selben Bild:
+     ohne GSAP   CSS-Uebergang, ausgeloest von der Klasse .nx-da
+     mit GSAP    GSAP schreibt die Werte direkt — dann sind die
+                 Uebergaenge hier im Weg und werden abgeschaltet.
+   ------------------------------------------------------------ */
+
+.nx-bewegt [data-nx-auf] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.52s var(--ease) var(--nx-auf-verzug, 0ms),
+    transform 0.52s var(--ease) var(--nx-auf-verzug, 0ms);
+}
+
+.nx-bewegt [data-nx-auf="fade"]   { transform: none; }
+.nx-bewegt [data-nx-auf="pop"]    { transform: scale(0.97) translateY(8px); }
+.nx-bewegt [data-nx-auf="links"]  { transform: translateX(-22px); }
+.nx-bewegt [data-nx-auf="rechts"] { transform: translateX(22px); }
+
+.nx-bewegt [data-nx-auf].nx-da {
+  opacity: 1;
+  transform: none;
+}
+
+/* GSAP setzt opacity und transform selbst, Bild fuer Bild. Ein
+   CSS-Uebergang daneben wuerde jeden Wert ein zweites Mal
+   interpolieren — das sieht man als Nachziehen. */
+.nx-gsap [data-nx-auf] { transition: none; }
+
+/* Drift: der Wert kommt vom Skript, die Bewegung macht das Element.
+   Getrennt gehalten, damit ein Element seine eigenen Transforms
+   behalten kann — .nx-glow z.B. liegt fix ueber der ganzen Flaeche. */
+[data-nx-drift] { translate: 0 var(--nx-drift-y, 0px); }
+
+/* Lesefortschritt — ein Strich, der mitwaechst.
+   <div class="nx-fortschritt" data-nx-fortschritt></div> */
+.nx-fortschritt {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 2px;
+  pointer-events: none;
+  background: var(--grad);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--nx-fortschritt, 0));
+  opacity: 0.9;
+}
+
+/* Sanftes Scrollen (Lenis) vertraegt sich nicht mit dem des Browsers:
+   beide wollen dieselbe Bewegung fahren, und das Ergebnis ruckelt. */
+.nx-sanft .nx-content,
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-bewegt [data-nx-auf] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  [data-nx-drift] { translate: none; }
+  .nx-fortschritt { transition: none; }
+}

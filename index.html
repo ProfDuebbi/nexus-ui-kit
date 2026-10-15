@@ -10,6 +10,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="nexus.css">
+<!-- GSAP und Lenis liegen NICHT im Paket: sie haben eigene Lizenzen
+     (GreenSock Standard "no charge" bzw. MIT) und das Kit verspricht
+     Abhaengigkeitsfreiheit. Hier liegen sie selbst gehostet daneben —
+     fehlen sie, faellt nexus-motion.js von allein auf den eingebauten
+     Weg zurueck (IntersectionObserver + CSS). Genau das zeigt der
+     Abschnitt "Bewegung" live an. -->
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<!-- Gehoert in den <head>: die Klasse nx-bewegt muss stehen, bevor der
+     Inhalt kommt, sonst blitzt er einmal auf. -->
+<script src="nexus-motion.js"></script>
 <style>
   /* Nur fuer diese Schauseite — nicht Teil des Systems. */
   html, body { margin: 0; }
@@ -56,13 +68,14 @@
 </style>
 </head>
 <body class="nx nx-app">
-  <div class="nx-glow"></div>
+  <div class="nx-fortschritt" data-nx-fortschritt></div>
+  <div class="nx-glow" data-nx-drift="0.6"></div>
 
   <!-- Kopfzeile -->
   <header class="nx-top">
     <div class="nx-top-left">
       <a class="nx-brand" href="#">
-        <span class="nx-brand-text">NEXUS <em>UI KIT</em> <small>v1.0.1</small></span>
+        <span class="nx-brand-text">NEXUS <em>UI KIT</em> <small>v1.1.0</small></span>
       </a>
     </div>
     <button class="nx-searchbtn" type="button">
@@ -97,6 +110,7 @@
       <div class="nx-rail-sep"></div>
       <div class="nx-rail-sec">Haltung</div>
       <a class="nx-rail-item" href="#bewegung"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18c6 0 6-12 12-12 3 0 6 2 6 6"/></svg><span>Bewegung</span></a>
+      <a class="nx-rail-item" href="#scrollen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="5"/><path d="M12 7v3"/></svg><span>Im Scrollen</span><span class="nx-badge">neu</span></a>
       <a class="nx-rail-item" href="#einbau"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 18-6-6 6-6M16 6l6 6-6 6"/></svg><span>Einbau</span></a>
       <a class="nx-rail-item" href="#paket"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v8l-9 5-9-5V8l9-5 9 5Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg><span>Das Paket</span></a>
       <a class="nx-rail-item" href="#lizenz"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 4 3.5 7.5 8 9 4.5-1.5 8-5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><span>Lizenz</span></a>
@@ -112,7 +126,7 @@
     <main class="nx-content">
       <div class="nx-wrap">
 
-        <div class="nx-head">
+        <div class="nx-head" data-nx-auf="fade">
           <div class="nx-head-text">
             <span class="nx-kicker"><i></i>Design-System</span>
             <h1 class="nx-h1 nx-h1-sm">Ein dunkler Grund, <em>eine Farbe</em>, dieselbe Handschrift.</h1>
@@ -121,7 +135,7 @@
         </div>
 
         <!-- Tokens -->
-        <section class="nx-panel sg-sec" id="tokens">
+        <section class="nx-panel sg-sec" id="tokens" data-nx-auf>
           <div class="nx-panel-head">
             <h2>Farben &amp; Tokens</h2>
             <span class="nx-chip">CSS-Variablen</span>
@@ -151,7 +165,7 @@
         </section>
 
         <!-- Typo -->
-        <section class="nx-panel sg-sec" id="typo">
+        <section class="nx-panel sg-sec" id="typo" data-nx-auf>
           <div class="nx-panel-head"><h2>Typografie</h2><span class="nx-chip">Inter + JetBrains Mono</span></div>
           <p class="nx-panel-sub">Inter trägt den Text. Die Mono steht nur dort, wo etwas technisch wirken soll: Kicker, Zahlen, Tasten.</p>
           <span class="nx-kicker"><i></i>Kicker · mono, gesperrt, Akzentfarbe</span>
@@ -165,7 +179,7 @@
         </section>
 
         <!-- Knoepfe -->
-        <section class="nx-panel sg-sec" id="knoepfe">
+        <section class="nx-panel sg-sec" id="knoepfe" data-nx-auf>
           <div class="nx-panel-head"><h2>Knöpfe</h2><span class="nx-chip">Hover hebt an</span></div>
           <p class="nx-panel-sub">Jeder Knopf hebt sich beim Überfahren um einen Pixel, der Rand nimmt die Akzentfarbe auf, darunter liegt weiches Licht.</p>
           <div class="sg-reihe">
@@ -185,21 +199,21 @@
         </section>
 
         <!-- Kennzahlen -->
-        <section class="sg-sec" id="kennzahlen">
+        <section class="sg-sec" id="kennzahlen" data-nx-auf>
           <div class="nx-sechead"><h2>Kennzahlen</h2></div>
-          <div class="nx-kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
-            <div class="nx-kpi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg><b>1.284</b><span>Aufrufe heute</span></div>
-            <div class="nx-kpi" style="--tint:var(--ok)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg><b>98,6 %</b><span>Erreichbarkeit</span></div>
-            <div class="nx-kpi" style="--tint:var(--warn)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>07</b><span>In Arbeit</span></div>
-            <div class="nx-kpi" style="--tint:var(--akzent-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><b>42</b><span>Mitglieder</span></div>
+          <div class="nx-kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))" data-nx-auf-gruppe="pop">
+            <div class="nx-kpi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg><b data-nx-zahl>1.284</b><span>Aufrufe heute</span></div>
+            <div class="nx-kpi" style="--tint:var(--ok)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg><b data-nx-zahl>98,6 %</b><span>Erreichbarkeit</span></div>
+            <div class="nx-kpi" style="--tint:var(--warn)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b data-nx-zahl>07</b><span>In Arbeit</span></div>
+            <div class="nx-kpi" style="--tint:var(--akzent-2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><b data-nx-zahl>42</b><span>Mitglieder</span></div>
           </div>
         </section>
 
         <!-- Kacheln -->
-        <section class="sg-sec" id="kacheln">
+        <section class="sg-sec" id="kacheln" data-nx-auf>
           <div class="nx-sechead"><h2>Kacheln</h2></div>
           <p class="nx-panel-sub" style="margin-bottom:12px">Die Farbe einer Kachel kommt aus zwei Farbwinkeln (<span class="nx-mono">--h</span> / <span class="nx-mono">--h2</span>) — Sättigung und Helligkeit sind fest, damit die Wand als ein Satz wirkt.</p>
-          <div class="nx-tile-grid">
+          <div class="nx-tile-grid" data-nx-auf-gruppe>
             <a class="nx-tile" href="#" style="--h:265;--h2:225">
               <svg class="nx-tile-wash" width="86" height="86" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
               <span class="nx-tile-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></span>
@@ -222,7 +236,7 @@
         </section>
 
         <!-- Tabellen + Status -->
-        <section class="nx-panel nx-panel-tight sg-sec" id="tabellen">
+        <section class="nx-panel nx-panel-tight sg-sec" id="tabellen" data-nx-auf>
           <div class="nx-panel-head"><h2>Tabelle &amp; Status</h2><span class="nx-chip">bricht mobil zu Karten um</span></div>
           <div class="nx-tablewrap">
             <table class="nx-table nx-table-cards">
@@ -238,7 +252,7 @@
         </section>
 
         <!-- Formulare + Dialog -->
-        <section class="sg-sec" id="formulare">
+        <section class="sg-sec" id="formulare" data-nx-auf>
           <div class="sg-paar">
             <div class="nx-panel">
               <div class="nx-panel-head"><h2>Formular</h2></div>
@@ -267,7 +281,7 @@
         </section>
 
         <!-- Kleinteile -->
-        <section class="nx-panel sg-sec" id="kleinteile">
+        <section class="nx-panel sg-sec" id="kleinteile" data-nx-auf>
           <div class="nx-panel-head"><h2>Kleinteile</h2></div>
           <div class="sg-reihe">
             <span class="nx-chip">Chip</span>
@@ -292,7 +306,7 @@
         </section>
 
         <!-- Bewegung -->
-        <section class="nx-panel sg-sec" id="bewegung">
+        <section class="nx-panel sg-sec" id="bewegung" data-nx-auf>
           <div class="nx-panel-head"><h2>Bewegung</h2><span class="nx-chip">eine Kurve für alles</span></div>
           <p class="nx-panel-sub">Nichts springt. Kanten fahren ein, Flächen kommen als weicher Verlauf, Symbole machen eine winzige Bewegung mit. Immer <span class="nx-mono">cubic-bezier(.22, 1, .36, 1)</span>.</p>
           <pre class="sg-code"><b>--ease</b>: cubic-bezier(0.22, 1, 0.36, 1);   <i>/* easeOutQuart */</i>
@@ -308,11 +322,61 @@
           </div>
         </section>
 
+        <!-- Bewegung im Scrollen -->
+        <section class="nx-panel sg-sec" id="scrollen" data-nx-auf>
+          <div class="nx-panel-head">
+            <h2>Im Scrollen</h2>
+            <span class="nx-chip" id="bw-lage">—</span>
+          </div>
+          <p class="nx-panel-sub">
+            Dieselbe Handschrift, nur über die ganze Seite statt über einen Knopf:
+            <span class="nx-mono">nexus-motion.js</span> lässt Abschnitte auftreten, zählt Zahlen hoch,
+            lässt den Hintergrund driften und zeichnet oben den Lesefortschritt.
+            Alles, was Sie hier sehen, ist schon im Lauf — der Balken ganz oben,
+            die Kennzahlen weiter oben, diese Karte.
+          </p>
+
+          <div class="nx-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+            <span>
+              <b>Zwei Betriebsarten, dasselbe Bild.</b> Liegen <span class="nx-mono">GSAP</span> und
+              <span class="nx-mono">Lenis</span> auf dem Fenster, werden sie benutzt — echte Interpolation,
+              weiches Scrollen mit Trägheit. Liegt nichts da, macht dieselbe Datei es mit
+              <span class="nx-mono">IntersectionObserver</span> und CSS-Übergängen.
+              Beide Bibliotheken haben <b>eigene Lizenzen</b> und liegen deshalb <b>nicht im Paket</b>;
+              das Kit bleibt abhängigkeitsfrei.
+            </span>
+          </div>
+
+          <pre class="sg-code">&lt;script src="<b>nexus-motion.js</b>"&gt;&lt;/script&gt;   <i>&lt;!-- in den &lt;head&gt; --&gt;</i>
+&lt;script&gt;<b>nexusBewegung</b>();&lt;/script&gt;           <i>&lt;!-- ans Ende des &lt;body&gt; --&gt;</i>
+
+<i>Im Markup:</i>
+<b>data-nx-auf</b>                  <i>Auftritt beim Hereinscrollen</i>
+<b>data-nx-auf</b>="pop|fade|links|rechts"
+<b>data-nx-auf-gruppe</b>           <i>am Elternteil: Kinder gestaffelt</i>
+<b>data-nx-zahl</b>                 <i>zählt die Zahl im Text hoch</i>
+<b>data-nx-drift</b>="0.6"          <i>driftet langsam mit</i>
+<b>data-nx-fortschritt</b>          <i>bekommt --nx-fortschritt: 0 … 1</i></pre>
+
+          <div class="sg-reihe" data-nx-auf-gruppe="links" style="margin-top:4px">
+            <div class="nx-kpi" style="min-width:148px"><b data-nx-zahl>1.248</b><span>gestaffelt</span></div>
+            <div class="nx-kpi" style="--tint:var(--ok);min-width:148px"><b data-nx-zahl>99,2 %</b><span>von links</span></div>
+            <div class="nx-kpi" style="--tint:var(--akzent-2);min-width:148px"><b data-nx-zahl>36</b><span>35 ms Versatz</span></div>
+          </div>
+
+          <p class="nx-panel-sub" style="margin:0">
+            <span class="nx-mono">prefers-reduced-motion</span> schaltet alles ab: dann ist sofort
+            alles da, die Drift steht still, und sanftes Scrollen wird gar nicht erst eingeschaltet.
+          </p>
+        </section>
+
         <!-- Einbau -->
-        <section class="nx-panel sg-sec" id="einbau">
+        <section class="nx-panel sg-sec" id="einbau" data-nx-auf>
           <div class="nx-panel-head"><h2>Einbau</h2><span class="nx-chip">drei Zeilen</span></div>
           <pre class="sg-code">&lt;link rel="stylesheet" href="<b>nexus.css</b>"&gt;
 &lt;script src="<b>nexus-accent.js</b>"&gt;&lt;/script&gt;
+&lt;script src="<b>nexus-motion.js</b>"&gt;&lt;/script&gt;   <i>&lt;!-- optional, siehe "Im Scrollen" --&gt;</i>
 
 &lt;body class="<b>nx nx-app</b>"&gt;
   &lt;div class="nx-glow"&gt;&lt;/div&gt;
@@ -329,12 +393,12 @@
         </section>
 
         <!-- Paket -->
-        <section class="nx-panel sg-sec" id="paket">
+        <section class="nx-panel sg-sec" id="paket" data-nx-auf>
           <div class="nx-panel-head">
             <h2>Das Paket</h2>
-            <span class="nx-chip">37 KB gepackt</span>
+            <span class="nx-chip">45 KB gepackt</span>
           </div>
-          <p class="nx-panel-sub">Alles auf dieser Seite steckt in neun Dateien — kein Build, keine Abhängigkeiten, keine Daten.</p>
+          <p class="nx-panel-sub">Alles auf dieser Seite steckt in zehn Dateien — kein Build, keine Abhängigkeiten, keine Daten.</p>
           <div class="nx-tablewrap">
             <table class="nx-table nx-table-cards">
               <thead><tr><th>Datei</th><th>Wofür</th></tr></thead>
@@ -342,6 +406,7 @@
                 <tr><td data-label="Datei"><a href="nexus.css" class="nx-mono">nexus.css</a></td><td data-label="Wofür">Das System. Tokens, Shell, alle Bausteine.</td></tr>
                 <tr><td data-label="Datei"><a href="nexus-tokens.css" class="nx-mono">nexus-tokens.css</a></td><td data-label="Wofür">Nur die Variablen, für eigene Bausteine.</td></tr>
                 <tr><td data-label="Datei"><a href="nexus-accent.js" class="nx-mono">nexus-accent.js</a></td><td data-label="Wofür">Die Akzent-Engine: eine Farbe → das ganze Set.</td></tr>
+                <tr><td data-label="Datei"><a href="nexus-motion.js" class="nx-mono">nexus-motion.js</a></td><td data-label="Wofür">Die Bewegungs-Ebene: Auftritte, Zähler, Drift.</td></tr>
                 <tr><td data-label="Datei"><a href="tokens.json" class="nx-mono">tokens.json</a></td><td data-label="Wofür">Dieselben Werte maschinenlesbar.</td></tr>
                 <tr><td data-label="Datei"><a href="tailwind-preset.js" class="nx-mono">tailwind-preset.js</a></td><td data-label="Wofür">Tokens als Tailwind-Theme.</td></tr>
                 <tr><td data-label="Datei"><a href="README.md" class="nx-mono">README.md</a></td><td data-label="Wofür">Einbau, Bausteine, die Regeln dahinter.</td></tr>
@@ -361,7 +426,7 @@
         </section>
 
         <!-- Lizenz -->
-        <section class="nx-panel sg-sec" id="lizenz">
+        <section class="nx-panel sg-sec" id="lizenz" data-nx-auf>
           <div class="nx-panel-head">
             <h2>Lizenz</h2>
             <span class="nx-chip">CC BY-NC 4.0</span>
@@ -455,6 +520,21 @@ https://brainstorm-studios.de/de/arbeiten/nexus-ui-kit</pre>
   });
   dlg.addEventListener('click', function (e) { if (e.target === dlg) zu(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') zu(); });
+
+  // Bewegung im Scrollen. Muss NACH dem Inhalt laufen — die Datei selbst
+  // liegt im <head>, damit nichts aufblitzt, der Aufruf gehoert hierher.
+  var bewegung = nexusBewegung();
+
+  // Der Abschnitt "Im Scrollen" sagt selbst, welchen Weg er gerade geht.
+  var lage = document.getElementById('bw-lage');
+  if (bewegung.ruhig) {
+    lage.textContent = 'ruhig gestellt';
+  } else {
+    var teile = [];
+    teile.push(bewegung.gsap ? 'GSAP + ScrollTrigger' : 'ohne GSAP');
+    teile.push(bewegung.sanft ? 'Lenis' : 'ohne Lenis');
+    lage.textContent = teile.join(' · ');
+  }
 </script>
 </body>
 </html>

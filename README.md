@@ -1,4 +1,4 @@
-# Nexus UI Kit · v1.0.1
+# Nexus UI Kit · v1.1.0
 
 **CC BY-NC 4.0** — benutzen, ändern und weitergeben erlaubt · Nennung Pflicht · nicht kommerziell.
 Ausführlich in [`LIZENZ.txt`](LIZENZ.txt), verbindlich in [`LICENSE`](LICENSE).
@@ -19,6 +19,7 @@ Skript für die Farbe und eine Schauseite, die alles zeigt.
 | `nexus.css` | Das System. Tokens, Shell, alle Bausteine. Eine Datei, keine Abhängigkeiten. |
 | `nexus-tokens.css` | Nur die Variablen — für Projekte, die dieselben Farben sprechen, aber eigene Bausteine haben. |
 | `nexus-accent.js` | Akzent-Engine: aus einer Farbe wird das ganze Farbset inkl. Verlauf. |
+| `nexus-motion.js` | Bewegungs-Ebene fürs Scrollen: Auftritte, Zähler, Drift, Fortschritt. Optional. |
 | `tokens.json` | Dieselben Werte maschinenlesbar (Figma-Import, Build-Skripte, Doku). |
 | `tailwind-preset.js` | Tokens als Tailwind-Theme, falls Tailwind im Spiel ist. |
 | `index.html` | Die Schauseite: jeder Baustein, live, mit Farbwähler. |
@@ -33,6 +34,7 @@ Einfach `index.html` im Browser öffnen — kein Build, kein Server nötig.
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="nexus.css">
 <script src="nexus-accent.js"></script>
+<script src="nexus-motion.js"></script>   <!-- optional, siehe "Bewegung im Scrollen" -->
 ```
 
 Die Grundfläche ist `.nx`. Alles darin erbt Farben, Schrift und Kurven:
@@ -139,6 +141,66 @@ oder eigene Farbe über `style="--st: var(--info)"`.
 
 ---
 
+## Bewegung im Scrollen
+
+Die Handschrift des Systems steckte bisher im Hover. `nexus-motion.js` zieht
+dieselbe Kurve über die ganze Seite — **optional**, der Rest des Kits läuft ohne.
+
+```html
+<script src="nexus-motion.js"></script>   <!-- in den <head> -->
+…
+<script>nexusBewegung();</script>         <!-- ans Ende des <body> -->
+```
+
+Die Datei gehört in den `<head>`: sie setzt `nx-bewegt` auf `<html>`, bevor der
+Inhalt kommt. Sonst blitzt alles einmal auf, bevor es für seinen Auftritt
+verschwindet. Der Aufruf dagegen gehört ans Ende — er braucht das Markup.
+
+| Im Markup | Was passiert |
+|---|---|
+| `data-nx-auf` | Tritt beim Hereinscrollen auf. Auch `="pop"`, `="fade"`, `="links"`, `="rechts"`. |
+| `data-nx-auf-gruppe` | Am Elternteil: alle Kinder bekommen den Auftritt, gestaffelt mit 35 ms. |
+| `data-nx-zahl` | Zählt die Zahl im Text hoch, sobald sie kommt. Versteht `1.284`, `98,6 %`, `07`. |
+| `data-nx-drift="0.6"` | Driftet langsam mit dem Scrollen — für Hintergründe, Lichter, `.nx-glow`. |
+| `data-nx-fortschritt` | Bekommt `--nx-fortschritt: 0 … 1`. Fertig als `.nx-fortschritt` (Strich oben). |
+
+### Zwei Betriebsarten, dasselbe Bild
+
+Liegen **GSAP** (mit ScrollTrigger) und/oder **Lenis** auf dem Fenster, werden
+sie benutzt: echte Interpolation, scrubbare Drift, weiches Scrollen mit
+Trägheit. Liegt nichts da, macht dieselbe Datei es mit `IntersectionObserver`
+und CSS-Übergängen. Das Markup bleibt in beiden Fällen gleich.
+
+**Beide liegen nicht im Paket.** Sie haben eigene Lizenzen — GSAP die
+GreenSock-Standardlizenz („no charge"), Lenis MIT —, und das Kit verspricht
+Abhängigkeitsfreiheit. Wer sie will, lädt sie selbst dazu; `nexus-motion.js`
+merkt es von allein.
+
+```js
+const bewegung = nexusBewegung({ versatz: 35, dauer: 1.1 });
+
+bewegung.gsap        // läuft GSAP mit?
+bewegung.sanft       // läuft Lenis mit?
+bewegung.anfahren(el) // Abschnitt weich anfahren
+bewegung.anhalten()  // z.B. solange ein Dialog offen ist
+bewegung.messen()    // nach dem Nachladen von Inhalt
+```
+
+### Der eigene Scroller
+
+In der App-Schale scrollt nicht das Fenster, sondern `.nx-content`. Das findet
+`nexusBewegung()` von allein — wer das verwechselt, bekommt eine Seite, auf der
+nichts passiert, und sucht den Fehler bei ScrollTrigger. Ein anderer Scroller
+geht über `nexusBewegung({ scroller: el })`.
+
+Offene Dialoge (`.nx-modal-veil` ohne `hidden`) halten das Scrollen an und
+geben es beim Schließen wieder frei.
+
+`prefers-reduced-motion` schaltet alles ab: dann ist sofort alles da, die Drift
+steht still, und sanftes Scrollen wird gar nicht erst eingeschaltet.
+
+---
+
 ## Die Regeln dahinter
 
 1. **Flächen stapeln, nicht rahmen.** `--bg` → `--surface` → `--elev` → `--elev2`.
@@ -166,6 +228,21 @@ oder eigene Farbe über `style="--st: var(--info)"`.
 ---
 
 ## Änderungen
+
+**v1.1.0 — 15. Oktober 2026**
+
+Neu: `nexus-motion.js`, die Bewegungs-Ebene fürs Scrollen (siehe oben).
+Auftritte, hochzählende Zahlen, driftende Hintergründe, Lesefortschritt —
+dieselbe Kurve wie im Hover, nur über die ganze Seite. Dazu in `nexus.css`
+der Abschnitt 16 mit den Anfangszuständen und `.nx-fortschritt`.
+
+**Nichts davon ändert sich für bestehende Seiten.** Die neuen Regeln hängen
+alle an `.nx-bewegt` auf `<html>`, und die Klasse setzt allein das neue
+Skript. Wer es nicht einbindet, bekommt genau die Seite von vorher.
+
+GSAP und Lenis werden benutzt, wenn sie da sind, sind aber **nicht im Paket**
+und keine Voraussetzung — die Datei bringt ihren eigenen Weg über
+`IntersectionObserver` mit.
 
 **v1.0.1 — 3. Oktober 2026**
 
@@ -205,4 +282,4 @@ Projekts. Das eigenständige Kit hier ist davon unabhängig.
 
 ---
 
-Veröffentlicht am **1. Juli 2026** · v1.0.1 (3. Oktober 2026) · Copyright © 2026 Brainstorm Studios · DrDübbi
+Veröffentlicht am **1. Juli 2026** · v1.1.0 (15. Oktober 2026) · Copyright © 2026 Brainstorm Studios · DrDübbi

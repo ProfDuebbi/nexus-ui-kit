@@ -30,7 +30,7 @@ import { Readable } from 'node:stream';
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 
-/* Die neun Dateien des Pakets — dieselbe Liste, die in index.html unter
+/* Die zehn Dateien des Pakets — dieselbe Liste, die in index.html unter
    "Das Paket" steht. Laeuft beides auseinander, faellt es beim naechsten
    Bau auf: eine fehlende Datei bricht hier ab. */
 const DATEIEN = [
@@ -38,6 +38,7 @@ const DATEIEN = [
   'nexus.css',
   'nexus-tokens.css',
   'nexus-accent.js',
+  'nexus-motion.js',
   'tokens.json',
   'tailwind-preset.js',
   'README.md',
@@ -63,7 +64,7 @@ for (const name of DATEIEN) {
 
 /* ------------------------------------------------------------- ZIP */
 
-/* Von Hand statt mit einem Paket: neun Dateien ohne Verschluesselung
+/* Von Hand statt mit einem Paket: zehn Dateien ohne Verschluesselung
    und ohne Zip64 sind ein ueberschaubares Format, und eine Abhaengigkeit
    fuer einen Schritt, der einmal im Halbjahr laeuft, waere teurer als
    diese fuenfzig Zeilen. */
