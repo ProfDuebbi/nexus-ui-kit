@@ -1,5 +1,5 @@
 /* ============================================================
-   NEXUS UI KIT · v1.1.0
+   NEXUS UI KIT · v1.1.1
    Dunkles Interface-System: ruhige Flaechen, eine Akzentfarbe,
    ein Marken-Verlauf, ueberall dieselbe Bewegungs-Handschrift
    (160–250 ms, easeOutQuart).
@@ -30,6 +30,8 @@
 
    BENUTZUNG
    <body class="nx">  … alles darin erbt Farben und Schrift.
+   Die Tokens gelten zusaetzlich auf der ganzen Seite (siehe 1.),
+   auch ausserhalb von .nx — etwa fuer ein Portal an <body>.
    Eine eigene Farbe setzt man von aussen:
      :root { --nx-accent: #22d3ee; }
 
@@ -39,7 +41,15 @@
 
 /* ── 1. Tokens ─────────────────────────────────────────────
    Alles haengt an diesen Werten. Wer das System umfaerbt, fasst
-   nur --nx-accent* an — der Rest zieht mit. */
+   nur --nx-accent* an — der Rest zieht mit.
+
+   Sie stehen auf .nx UND auf der Seitenwurzel. Auf der Wurzel per
+   :where(:root), also mit Spezifitaet null: eine Seite, die selbst
+   --bg oder --text auf :root setzt, behaelt ihre Werte, egal in
+   welcher Reihenfolge die Dateien geladen werden. Bis v1.1.0 hingen
+   die Tokens nur an .nx — alles ausserhalb (ein Portal an <body>,
+   eine App-Wurzel ohne .nx) stand ohne eine einzige Farbe da. */
+:where(:root),
 .nx,
 .nx-float {
   /* Flaechen: von dunkel nach hell gestapelt */
@@ -76,6 +86,17 @@
   --nx-font-sans: var(--nx-font, "Inter"), system-ui, -apple-system, sans-serif;
   --nx-font-mono: var(--nx-mono, "JetBrains Mono"), ui-monospace, SFMono-Regular, monospace;
   --mono: var(--nx-font-mono);
+
+  /* Radien und Schatten — dieselben Werte wie in nexus-tokens.css,
+     tokens.json und tailwind-preset.js. Bis v1.1.0 fehlten sie hier,
+     und wer nur nexus.css einband, griff bei var(--r) ins Leere. */
+  --r-sm: 9px;
+  --r: 11px;
+  --r-md: 14px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --schatten-karte: 0 18px 40px -22px rgba(0, 0, 0, 0.9);
+  --schatten-dialog: 0 30px 80px rgba(0, 0, 0, 0.6);
 }
 
 /* ── 2. Grundflaeche ───────────────────────────────────── */

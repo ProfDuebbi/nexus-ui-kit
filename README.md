@@ -1,4 +1,4 @@
-# Nexus UI Kit · v1.1.0
+# Nexus UI Kit · v1.1.1
 
 **CC BY-NC 4.0** — benutzen, ändern und weitergeben erlaubt · Nennung Pflicht · nicht kommerziell.
 Ausführlich in [`LIZENZ.txt`](LIZENZ.txt), verbindlich in [`LICENSE`](LICENSE).
@@ -53,6 +53,10 @@ Die Grundfläche ist `.nx`. Alles darin erbt Farben, Schrift und Kurven:
   </div>
 </body>
 ```
+
+Die Tokens (`--bg`, `--text`, `--akzent`, `--r`, …) gelten außerdem auf der ganzen
+Seite — auch in einem Portal an `<body>` oder einer App-Wurzel ohne `.nx`. Setzt
+die Seite selbst gleichnamige Variablen auf `:root`, behalten ihre Werte Vorrang.
 
 `.nx-app` macht daraus eine feste App-Fläche (Leiste scrollt nicht mit).
 Ohne `.nx-app` wird es eine normal scrollende Seite — dann `.nx-page` statt `.nx-wrap`.
@@ -245,6 +249,18 @@ steht still, und sanftes Scrollen wird gar nicht erst eingeschaltet.
 
 ## Änderungen
 
+**v1.1.1 — 15. Oktober 2026**
+
+Zwei Stolperstellen in `nexus.css`, beide beim ersten Einsatz außerhalb der
+Schauseite aufgefallen:
+
+- **Die Tokens gelten jetzt auf der ganzen Seite**, nicht nur innerhalb von `.nx`.
+  Ein Dialog, der per Portal an `<body>` hängt, hatte bisher keine einzige Farbe.
+  Auf der Wurzel stehen sie mit Spezifität null (`:where(:root)`) — eigene
+  Variablen der Seite auf `:root` gewinnen weiterhin.
+- **`--r-sm`, `--r`, `--r-md`, `--r-lg`, `--r-pill` und die beiden Schatten**
+  stehen jetzt auch in `nexus.css`. Bisher gab es sie nur in `nexus-tokens.css`.
+
 **v1.1.0 — 15. Oktober 2026**
 
 Neu: `nexus-motion.js`, die Bewegungs-Ebene fürs Scrollen (siehe oben).
@@ -298,4 +314,4 @@ Projekts. Das eigenständige Kit hier ist davon unabhängig.
 
 ---
 
-Veröffentlicht am **1. Juli 2026** · v1.1.0 (15. Oktober 2026) · Copyright © 2026 Brainstorm Studios · DrDübbi
+Veröffentlicht am **1. Juli 2026** · v1.1.1 (15. Oktober 2026) · Copyright © 2026 Brainstorm Studios · DrDübbi
