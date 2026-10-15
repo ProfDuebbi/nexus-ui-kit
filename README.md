@@ -156,6 +156,21 @@ Die Datei gehört in den `<head>`: sie setzt `nx-bewegt` auf `<html>`, bevor der
 Inhalt kommt. Sonst blitzt alles einmal auf, bevor es für seinen Auftritt
 verschwindet. Der Aufruf dagegen gehört ans Ende — er braucht das Markup.
 
+**Unter React, Vue & Co.** gehört der Aufruf nicht ans Ende des `<body>`,
+sondern in einen Effekt nach dem ersten Rendern: `render()` arbeitet
+asynchron, ein Aufruf direkt danach sähe ein leeres Wurzelelement.
+
+```js
+useEffect(() => {
+  const bewegung = nexusBewegung();
+  return () => bewegung.aus();
+}, []);
+```
+
+Kommt später Inhalt dazu — ein Reiter, eine nachgeladene Liste —, sammelt
+`bewegung.messen()` die neuen Elemente ein. Ohne den Aufruf blieben sie auf
+ihrem Anfangszustand liegen, also unsichtbar.
+
 | Im Markup | Was passiert |
 |---|---|
 | `data-nx-auf` | Tritt beim Hereinscrollen auf. Auch `="pop"`, `="fade"`, `="links"`, `="rechts"`. |
@@ -183,7 +198,8 @@ bewegung.gsap        // läuft GSAP mit?
 bewegung.sanft       // läuft Lenis mit?
 bewegung.anfahren(el) // Abschnitt weich anfahren
 bewegung.anhalten()  // z.B. solange ein Dialog offen ist
-bewegung.messen()    // nach dem Nachladen von Inhalt
+bewegung.messen()    // nach dem Nachladen: neue Elemente einsammeln
+bewegung.aus()       // abbauen, z.B. beim Verlassen einer Ansicht
 ```
 
 ### Der eigene Scroller

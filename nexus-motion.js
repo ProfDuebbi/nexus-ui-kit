@@ -27,6 +27,11 @@
  *   ...
  *   <script>nexusBewegung();</script>            <!-- ans Ende des <body> -->
  *
+ *   Unter React, Vue & Co. gehoert der Aufruf in einen Effekt NACH dem
+ *   ersten Rendern — render() arbeitet asynchron, ein Aufruf direkt
+ *   danach saehe ein leeres Wurzelelement. Kommt spaeter Inhalt dazu
+ *   (Reiter, Nachladen), sammelt bewegung.messen() ihn ein.
+ *
  * IM MARKUP
  *   data-nx-auf                 Auftritt beim Hereinscrollen (= "rise")
  *   data-nx-auf="pop|fade|links|rechts"
@@ -215,66 +220,114 @@
 
     var mitGsap = WURZEL.classList.contains("nx-gsap");
 
-    /* --- Auftritte --------------------------------------------------- */
+    /* --- Auftritte ---------------------------------------------------
 
-    /* Gruppen zuerst: ein Elternteil mit data-nx-auf-gruppe gibt die
-       Art an seine Kinder weiter und nummeriert sie durch. */
-    liste(D, "[data-nx-auf-gruppe]").forEach(function (eltern) {
-      var art = eltern.getAttribute("data-nx-auf-gruppe") || "";
-      var kinder = [].slice.call(eltern.children);
-      kinder.forEach(function (kind, i) {
-        if (!kind.hasAttribute("data-nx-auf")) kind.setAttribute("data-nx-auf", art);
-        if (!kind.style.getPropertyValue("--i")) kind.style.setProperty("--i", String(i));
-      });
-    });
-
-    var auftritte = o.auftritt ? liste(D, "[data-nx-auf]") : [];
+       Eingesammelt wird in aufnehmen(), nicht einmal beim Start: was
+       spaeter in den Baum kommt (ein Reiter, nachgeladener Inhalt),
+       bliebe sonst auf seinem Anfangszustand liegen — unsichtbar und
+       ohne Fehlermeldung. messen() ruft aufnehmen() erneut auf; was
+       schon bekannt ist, wird uebergangen. */
+    var bekannt = new WeakSet();
+    var zaehlwache = null;
 
     function zeigen(el) {
       el.classList.add("nx-da");
       if (o.zahlen) zaehlen(el);
     }
 
-    auftritte.forEach(function (el) {
-      var i = zahlAus(el.style.getPropertyValue("--i"), 0);
-      el.style.setProperty("--nx-auf-verzug", (i * o.versatz) + "ms");
-    });
-
-    if (still) {
-      auftritte.forEach(zeigen);
-    } else if (mitGsap) {
-      /* ScrollTrigger.batch fasst zusammen, was im selben Augenblick
-         hereinkommt — so bleibt die Staffelung auch dann ruhig, wenn
-         jemand mit dem Rad durch die halbe Seite springt. */
-      ScrollTrigger.batch(auftritte, {
-        start: "top 92%",
-        once: o.einmal,
-        onEnter: function (gruppe) {
-          gsap.to(gruppe, {
-            opacity: 1,
-            y: 0,
-            x: 0,
-            scale: 1,
-            duration: 0.56,
-            ease: EASE,
-            stagger: o.versatz / 1000,
-            overwrite: true,
-            onStart: function () {
-              if (!o.zahlen) return;
-              gruppe.forEach(function (el) { zaehlen(el); });
-            }
-          });
-        }
-      });
-    } else {
-      zustand.offen = auftritte.slice();
-      zustand.beobachter = new IntersectionObserver(function (eintraege) {
-        eintraege.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          erledigt(e.target);
+    function aufnehmen() {
+      /* Gruppen zuerst: ein Elternteil mit data-nx-auf-gruppe gibt die
+         Art an seine Kinder weiter und nummeriert sie durch. Gezaehlt
+         werden nur die neuen — ein Kind, das als fuenfzigstes nachkommt,
+         soll nicht 50 x 35 ms auf seinen Auftritt warten. */
+      liste(D, "[data-nx-auf-gruppe]").forEach(function (eltern) {
+        var art = eltern.getAttribute("data-nx-auf-gruppe") || "";
+        var j = 0;
+        [].slice.call(eltern.children).forEach(function (kind) {
+          if (bekannt.has(kind)) return;
+          if (!kind.hasAttribute("data-nx-auf")) kind.setAttribute("data-nx-auf", art);
+          if (!kind.style.getPropertyValue("--i")) kind.style.setProperty("--i", String(j));
+          j++;
         });
-      }, { threshold: o.schwelle, rootMargin: o.rand, root: imFenster ? null : scroller });
-      auftritte.forEach(function (el) { zustand.beobachter.observe(el); });
+      });
+
+      var neu = o.auftritt
+        ? liste(D, "[data-nx-auf]").filter(function (el) { return !bekannt.has(el); })
+        : [];
+      neu.forEach(function (el) {
+        bekannt.add(el);
+        var i = zahlAus(el.style.getPropertyValue("--i"), 0);
+        el.style.setProperty("--nx-auf-verzug", (i * o.versatz) + "ms");
+      });
+
+      if (neu.length && still) {
+        neu.forEach(zeigen);
+      } else if (neu.length && mitGsap) {
+        /* ScrollTrigger.batch fasst zusammen, was im selben Augenblick
+           hereinkommt — so bleibt die Staffelung auch dann ruhig, wenn
+           jemand mit dem Rad durch die halbe Seite springt. */
+        ScrollTrigger.batch(neu, {
+          start: "top 92%",
+          once: o.einmal,
+          onEnter: function (gruppe) {
+            gsap.to(gruppe, {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              scale: 1,
+              duration: 0.56,
+              ease: EASE,
+              stagger: o.versatz / 1000,
+              overwrite: true,
+              onStart: function () {
+                if (!o.zahlen) return;
+                gruppe.forEach(function (el) { zaehlen(el); });
+              }
+            });
+          }
+        });
+      } else if (neu.length) {
+        if (!zustand.beobachter) {
+          zustand.beobachter = new IntersectionObserver(function (eintraege) {
+            eintraege.forEach(function (e) {
+              if (!e.isIntersecting) return;
+              erledigt(e.target);
+            });
+          }, { threshold: o.schwelle, rootMargin: o.rand, root: imFenster ? null : scroller });
+        }
+        neu.forEach(function (el) {
+          zustand.offen.push(el);
+          zustand.beobachter.observe(el);
+        });
+      }
+
+      /* Zahlen, die zu keinem Auftritt gehoeren, brauchen einen eigenen
+         Anstoss — sonst zaehlt nur, was ohnehin eingeblendet wird. */
+      if (o.zahlen) {
+        var einzeln = liste(D, "[data-nx-zahl]").filter(function (el) {
+          return !bekannt.has(el) && !el.closest("[data-nx-auf]");
+        });
+        einzeln.forEach(function (el) { bekannt.add(el); });
+        if (still) {
+          einzeln.forEach(zaehlen);
+        } else if (einzeln.length) {
+          if (!zaehlwache) {
+            zaehlwache = new IntersectionObserver(function (eintraege) {
+              eintraege.forEach(function (e) {
+                if (!e.isIntersecting) return;
+                zaehlen(e.target);
+                zaehlwache.unobserve(e.target);
+              });
+            }, { threshold: 0.4, root: imFenster ? null : scroller });
+          }
+          einzeln.forEach(function (el) { zaehlwache.observe(el); });
+        }
+      }
+
+      /* Drift und Fortschritt halten keinen Zustand je Element — die
+         Listen duerfen einfach neu gelesen werden. */
+      zustand.drifter = o.drift ? liste(D, "[data-nx-drift]") : [];
+      zustand.balken = liste(D, "[data-nx-fortschritt]");
     }
 
     function erledigt(el) {
@@ -295,28 +348,6 @@
       zustand.offen.slice().forEach(function (el) {
         if (el.getBoundingClientRect().bottom <= kante) erledigt(el);
       });
-    }
-
-    /* Zahlen, die zu keinem Auftritt gehoeren, brauchen einen eigenen
-       Anstoss — sonst zaehlt nur, was ohnehin eingeblendet wird. */
-    if (o.zahlen) {
-      var einzeln = liste(D, "[data-nx-zahl]").filter(function (el) {
-        return !el.closest("[data-nx-auf]");
-      });
-      if (einzeln.length) {
-        if (still) {
-          einzeln.forEach(zaehlen);
-        } else {
-          var zaehlwache = new IntersectionObserver(function (eintraege) {
-            eintraege.forEach(function (e) {
-              if (!e.isIntersecting) return;
-              zaehlen(e.target);
-              zaehlwache.unobserve(e.target);
-            });
-          }, { threshold: 0.4, root: imFenster ? null : scroller });
-          einzeln.forEach(function (el) { zaehlwache.observe(el); });
-        }
-      }
     }
 
     /* --- Zaehler ------------------------------------------------------ */
@@ -352,9 +383,8 @@
     }
 
     /* --- Drift und Fortschritt ---------------------------------------
-       Beides haengt am selben Wert: wie weit ist die Seite durch. */
-    zustand.drifter = o.drift ? liste(D, "[data-nx-drift]") : [];
-    zustand.balken = liste(D, "[data-nx-fortschritt]");
+       Beides haengt am selben Wert: wie weit ist die Seite durch. Die
+       Listen fuellt aufnehmen(). */
 
     function fortschritt() {
       var oben, hoehe, sicht;
@@ -388,6 +418,7 @@
       (imFenster ? global : scroller).addEventListener("scroll", malen, { passive: true });
     }
     global.addEventListener("resize", malen, { passive: true });
+    aufnehmen();
     malen();
 
     /* --- Sprungmarken -------------------------------------------------
@@ -448,13 +479,17 @@
       anfahren: anfahren,
       anhalten: function () { if (zustand.lenis) zustand.lenis.stop(); zustand.laeuft = false; },
       weiter: function () { if (zustand.lenis) zustand.lenis.start(); zustand.laeuft = true; },
+      /* Nach jedem Nachladen: neue Elemente einsammeln, Hoehen neu
+         lesen, einmal malen. */
       messen: function () {
+        aufnehmen();
         if (zustand.lenis) zustand.lenis.resize();
         if (global.ScrollTrigger) global.ScrollTrigger.refresh();
         malen();
       },
       aus: function () {
         if (zustand.beobachter) zustand.beobachter.disconnect();
+        if (zaehlwache) zaehlwache.disconnect();
         if (zustand.lenis) zustand.lenis.destroy();
         WURZEL.classList.remove("nx-bewegt", "nx-sanft", "nx-gsap");
       }
